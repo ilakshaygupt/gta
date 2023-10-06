@@ -1,4 +1,5 @@
 
+
 @font-face {
     font-family: 'Londrina'; 
     src: url('../assets/fonts/PermanentMarker-Regular.ttf') format('truetype'); 
@@ -11,7 +12,7 @@ body{
     background-color: black;
     display: flex;
     justify-content: space-between;
-    overflow: none;
+    
 }
 
 #name{
@@ -22,7 +23,8 @@ body{
 
 #person{
     margin-top: 10%;
-    width: 46% ;
+    width: 35% ;
+    margin-right: 9%;
 }
 
 #button-container{
@@ -33,7 +35,7 @@ body{
 }
 
 button {
-    height: 20%;
+    height: 25%;
     width: 80%;
     border-radius: 29%;
     border-color: burlywood;
@@ -53,7 +55,6 @@ button:hover{
     display: none;
     position: fixed;
     width: 100%;
-    /* background-color: rgba(0, 0, 0, 0.236); */
     z-index: 1;
     overflow: hidden;
     transition: height 0.5s; 
