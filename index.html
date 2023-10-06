@@ -4,8 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GTA</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <img src="assets/intro.png" id="name">
+    <div id="button-container">
+        <button id="startButton">START</button>
+        <button id="showButtonsInfo">Button Info</button>
+    </div>
+    <img src="assets/intro2.png" id="person">
+    <div id="buttonInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeInfoModal" >&times;</span>
+            <h2>Controls</h2>
+            <p>Here's your keys for the Journey</p>
+            <ul>
+                <li>Button 1: Perform action 1</li>
+                <li>Button 2: Perform action 2</li>
+            </ul>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
     
 </body>
 </html>
