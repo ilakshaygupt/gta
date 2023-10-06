@@ -49,6 +49,6 @@ const closeInfoModal = document.getElementById('closeInfoModal');
  
 const startButton = document.getElementById('startButton');
 function navigateToOtherPage() {
-    window.location.href = 'index.html';
+    window.location.href = '../game.html';
 }
 startButton.onclick = navigateToOtherPage;
