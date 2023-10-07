@@ -9,6 +9,9 @@ export default class Player extends entity {
     this.width = width;
     this.height = height;
     this.animationFrames = defaultImages;
+    this.currentFrame = 0;
+    this.jumping = false;
+    this.initialY = this.y;
   }
   draw(ctx) {
     ctx.drawImage(
@@ -19,9 +22,20 @@ export default class Player extends entity {
       this.height
     );
   }
+  updateAnimation() {
 
+
+    if (gameFrame % 20 == 0) this.currentFrame++;
+
+    gameFrame++;
+
+    if (this.currentFrame > this.animationFrames.length - 1) {
+      this.currentFrame = 0;
+    }
+  }
   setAnimation(images) {
     this.animationFrames = images;
     this.currentFrame = 0;
   }
+
 }

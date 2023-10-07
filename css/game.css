@@ -6,4 +6,8 @@ body {
 canvas {
     background-color: rgb(59, 161, 213);
     overflow: hidden;
+    margin-top: 6%;
+    margin-left: 14%;
+    
+
 }

@@ -1,23 +1,44 @@
 import Player from "./player.js"
 
 const canvas = document.querySelector('canvas')
+
 const context = canvas.getContext('2d')
 canvas.width = 1024
 canvas.height = 576
 
+
+
 const image = new Image()
 image.src = "../assets/GTA_MAP[1]_updated.png"
+// console.log(image)
 
+let up = new Image();
+let down = new Image();
+let left = new Image();
+let right = new Image();
+up.src="../images/up/1.png";
+down.src="../images/down/1.png";
+left.src="../images/left/1.png";
+right.src="../images/right/1.png";
 const upImages = [];
 const downImages = [];
 const leftImages = [];
 const rightImages = [];
+
 fillArray("up", 6, upImages);
 fillArray("down", 9, downImages);
 fillArray("left", 9, leftImages);
 fillArray("right", 9, rightImages);
 
-let player = new Player(512, 270, 69, 69, upImages);
+
+function fillArray(folder, count, images) {
+  for (let i = 1; i <= count; i++) {
+    const image = new Image();
+    image.src = `./images/${folder}/${i}.png`;
+    images.push(image);
+  }
+}
+let player=new Player(512,270,69,69,upImages);
 
 class Sprite {
     constructor({ position, image }) {
@@ -41,65 +62,88 @@ image.onload = () => {
     function animate() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         background.draw();
+        player.updateAnimation();
         player.draw(context);
         window.requestAnimationFrame(animate);
+
+
+        if (keys.w.pressed) {
+            background.position.y += 2;
+            player.setAnimation(upImages);
+        } else if (keys.a.pressed) {
+            background.position.x += 2;
+            player.setAnimation(leftImages);
+        } else if (keys.s.pressed) {
+            background.position.y -= 2;
+            player.setAnimation(downImages);
+        } else if (keys.d.pressed) {
+            background.position.x -= 2;
+            player.setAnimation(rightImages);
+        }
+
+        // context.fillRect(512, 270, 50, 50);
+
     }
 
-    animate();
+    animate()
 }
 
 const keys = {
-    w: false,
-    a: false,
-    s: false,
-    d: false
-};
-
-window.addEventListener('keydown', (e) => {
-    switch (e.key) {
-        case 'w':
-            keys.w = true;
-            break;
-        case 's':
-            keys.s = true;
-            break;
-        case 'a':
-            keys.a = true;
-            break;
-        case 'd':
-            keys.d = true;
-            break;
+    w: {
+        pressed: false
+    },
+    a: {
+        pressed: false
+    },
+    s: {
+        pressed: false
+    },
+    d: {
+        pressed: false
     }
-});
 
-window.addEventListener('keyup', (e) => {
-    switch (e.key) {
-        case 'w':
-            keys.w = false;
-            break;
-        case 's':
-            keys.s = false;
-            break;
-        case 'a':
-            keys.a = false;
-            break;
-        case 'd':
-            keys.d = false;
-            break;
-    }
-});
-
-function handleKeyPress() {
-    if (keys.w ) {
-        player.setAnimation(upImages);
-    } else if (keys.a ) {
-        player.setAnimation(leftImages);
-    } else if (keys.s ) {
-        player.setAnimation(downImages);
-    } else if (keys.d ) {
-        player.setAnimation(rightImages);
-    }
 }
 
+window.addEventListener('keydown', (e) => {
 
-setInterval(handleKeyPress, 1000/60);
+    switch (e.key) {
+        case 'w':
+            keys.w.pressed = true;
+            lastKey = 'w'
+            break
+        case 's':
+            keys.s.pressed = true;
+            lastKey = 's'
+            break
+        case 'a':
+            keys.a.pressed = true;
+            lastKey = 'a'
+            break
+
+        case 'd':
+            keys.d.pressed = true;
+            lastKey = 'd'
+            break
+    }
+})
+
+window.addEventListener('keyup', (e) => {
+    console.log(e.key)
+    switch (e.key) {
+        case 'w':
+            keys.w.pressed = false;
+            break
+        case 's':
+            keys.s.pressed = false;
+            break
+        case 'a':
+            keys.a.pressed = false;
+            break
+        case 'd':
+            keys.d.pressed = false;
+            break
+    }
+    console.log(keys)
+})
+
+
