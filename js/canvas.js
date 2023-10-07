@@ -1,15 +1,23 @@
-const canvas = document.querySelector('canvas')
+import Player from "./player.js"
 
+const canvas = document.querySelector('canvas')
 const context = canvas.getContext('2d')
 canvas.width = 1024
 canvas.height = 576
 
-context.fillStyle = 'black' //in case the background image is not
-context.fillRect(0, 0, canvas.width, canvas.height)
-
 const image = new Image()
-image.src = "./assets/GTA_MAP[1]_updated.png"
-console.log(image)
+image.src = "../assets/GTA_MAP[1]_updated.png"
+
+const upImages = [];
+const downImages = [];
+const leftImages = [];
+const rightImages = [];
+fillArray("up", 6, upImages);
+fillArray("down", 9, downImages);
+fillArray("left", 9, leftImages);
+fillArray("right", 9, rightImages);
+
+let player = new Player(512, 270, 69, 69, upImages);
 
 class Sprite {
     constructor({ position, image }) {
@@ -24,94 +32,74 @@ class Sprite {
 image.onload = () => {
     const background = new Sprite({
         position: {
-            x: 0,
-            y: 0
+            x: -1100,
+            y: -1100
         },
         image: image
     })
 
     function animate() {
-        window.requestAnimationFrame(animate);
         context.clearRect(0, 0, canvas.width, canvas.height);
-
-
-        if (keys.w.pressed) {
-            background.position.y -= 2;
-        } else if (keys.a.pressed) {
-            background.position.x -= 2;
-        } else if (keys.s.pressed) {
-            background.position.y += 2;
-        } else if (keys.d.pressed) {
-            background.position.x += 2;
-        }
         background.draw();
-        console.log('animate');
-        context.fillRect(512, 270, 50, 50);
-
+        player.draw(context);
+        window.requestAnimationFrame(animate);
     }
 
-    animate()
+    animate();
 }
 
 const keys = {
-    w: {
-        pressed: false
-    },
-    a: {
-        pressed: false
-    },
-    s: {
-        pressed: false
-    },
-    d: {
-        pressed: false
-    }
-
-}
+    w: false,
+    a: false,
+    s: false,
+    d: false
+};
 
 window.addEventListener('keydown', (e) => {
-    console.log(e.key)
     switch (e.key) {
         case 'w':
-            keys.w.pressed = true;
-            lastKey = 'w'
-            break
+            keys.w = true;
+            break;
         case 's':
-            keys.s.pressed = true;
-            lastKey = 's'
-            break
+            keys.s = true;
+            break;
         case 'a':
-            keys.a.pressed = true;
-            lastKey = 'a'
-            break
-
+            keys.a = true;
+            break;
         case 'd':
-            keys.d.pressed = true;
-            lastKey = 'd'
-            break
+            keys.d = true;
+            break;
     }
-    console.log(keys)
-})
+});
 
 window.addEventListener('keyup', (e) => {
-    console.log(e.key)
     switch (e.key) {
         case 'w':
-            keys.w.pressed = false;
-
-            break
+            keys.w = false;
+            break;
         case 's':
-            keys.s.pressed = false;
-            break
+            keys.s = false;
+            break;
         case 'a':
-            keys.a.pressed = false;
-            break
-
+            keys.a = false;
+            break;
         case 'd':
-            keys.d.pressed = false;
-            break
+            keys.d = false;
+            break;
     }
-    console.log(keys)
-})
+});
+
+function handleKeyPress() {
+    if (keys.w ) {
+        player.setAnimation(upImages);
+    } else if (keys.a ) {
+        player.setAnimation(leftImages);
+    } else if (keys.s ) {
+        player.setAnimation(downImages);
+    } else if (keys.d ) {
+        player.setAnimation(rightImages);
+    }
+}
 
 
+setInterval(handleKeyPress, 1000/60);
