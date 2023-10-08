@@ -21,6 +21,8 @@ export default class Player extends entity {
       this.width,
       this.height
     );
+
+
   }
   setAnimation(images) {
     this.animationFrames = images;
