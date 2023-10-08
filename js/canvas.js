@@ -380,11 +380,16 @@ window.addEventListener('keydown', (e) => {
             keys.a.pressed = true;
             lastKey = 'a'
             break
-
         case 'd':
             keys.d.pressed = true;
             lastKey = 'd'
             break
+        case 'm':
+            toggleMusic();
+            break
+        case 'c':
+            changeMusic();
+            break;
     }
 })
 window.addEventListener('keyup', (e) => {
@@ -409,3 +414,30 @@ window.addEventListener('keyup', (e) => {
             break;
     }
 });
+
+
+const audioFiles = [
+    '../assets/audio/1.mp3',
+    '../assets/audio/2.mp3' 
+];
+let currentAudioIndex=0;
+const bgMusic = new Audio(audioFiles[currentAudioIndex]);
+let isMusicPlaying = false;
+bgMusic.loop = true;
+function changeMusic() {
+    if (isMusicPlaying) {
+        bgMusic.pause();
+        currentAudioIndex = (currentAudioIndex + 1) % audioFiles.length; 
+        bgMusic.src = audioFiles[currentAudioIndex]; 
+        bgMusic.play();
+    }
+}
+function toggleMusic() {
+    if (isMusicPlaying) {
+        bgMusic.pause();
+        isMusicPlaying = false;
+    } else {
+        bgMusic.play();
+        isMusicPlaying = true;
+    }
+}
