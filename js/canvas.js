@@ -17,7 +17,7 @@ for (let i = 0; i < collisions.length; i = i + 100) {
 //creating the collision object we want to render
 class Boundary {
     static width = 40
-    static height =40
+    static height = 40
     constructor({ position }) {
         this.position = position
         this.width = 40  // 16 pixel * 250% zoom level = 4000
@@ -26,39 +26,41 @@ class Boundary {
 
     //drawing the rectangles of collision
     draw() {
-        context.fillStyle = 'rgba(0,0,0,0.5)'
+        context.fillStyle = 'rgba(0,0,0,0)'
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 }
 
-const offset= {
-    x:0,
-    y:0
-  }
+const offset = {
+    x: 0,
+    y: 0
+}
 
 // filling up Boundaries array with collison objects
-const Boundaries = [] 
+const Boundaries = []
 //iterating each row
-collisionMap.forEach((row , i) => {
+collisionMap.forEach((row, i) => {
     //iterating inside each row
-    row.forEach((Symbol , j)=> {
-        if(Symbol=== 13188)
-        Boundaries.push(
-            new Boundary({
-                position :{
-                    x: j*Boundary.width +offset.x,  
-                    y: i*Boundary.height + offset.y
-                }
-            })
-        )
+    row.forEach((Symbol, j) => {
+        if (Symbol === 13188)
+            Boundaries.push(
+                new Boundary({
+                    position: {
+                        x: j * Boundary.width + offset.x,
+                        y: i * Boundary.height + offset.y
+                    }
+                })
+            )
     })
 })
 
 
 
 const image = new Image()
-image.src = "../assets/GTA_MAP[1]_updated.png"
+image.src = '../assets/GTA_MAP[1]_updated.png'
 // console.log(image)
+const foregroundImage = new Image()
+foregroundImage.src = '../assets/Foreground.png'
 
 let up = new Image();
 let down = new Image();
@@ -87,7 +89,6 @@ function fillArray(folder, count, images) {
     }
 }
 let player = new Player(512, 270, 64, 64, upImages);
-
 class Sprite {
     constructor({ position, image }) {
         this.position = position
@@ -99,21 +100,14 @@ class Sprite {
 }
 
 
-const testBoundary=new Boundary({
-    position:{
+
+const testBoundary = new Boundary({
+    position: {
         x: 400,
-        y: 400  
+        y: 400
     }
 })
-let lastKey='w'
-function iscoll({rect1,rect2}){
-    return(rect1.x+rect1.width-20>=rect2.position.x &&
-        rect1.x<=rect2.position.x+rect2.width -20
-        && rect1.y+rect1.height-8>=rect2.position.y && 
-        rect1.y<=rect2.position.y+rect2.height-50)
-
-}
-
+let lastKey = 'w'
 
 image.onload = () => {
     const background = new Sprite({
@@ -123,136 +117,174 @@ image.onload = () => {
         },
         image: image
     })
+
+    const foreground = new Sprite({
+        position: {
+            x: offset.x,
+            y: offset.y
+        },
+        image: foregroundImage
+    })
+
+    function iscoll({ rect1, rect2 }) {
+        return (rect1.x + rect1.width - 20 >= rect2.position.x &&
+            rect1.x <= rect2.position.x + rect2.width - 20
+            && rect1.y + rect1.height - 8 >= rect2.position.y &&
+            rect1.y <= rect2.position.y + rect2.height - 50)
+    
+    }
+    
     function animate() {
         context.clearRect(0, 0, canvas.width, canvas.height);
+        background.draw()
+        player.updateAnimation()
+        player.draw(context)
+        foreground.draw()
         
-       
-       
-        
-        background.draw();
-        
+        // console.log('Foreground drwan')
+            
 
         //drawing the boundaries 
         Boundaries.forEach(Boundary => {
             Boundary.draw()
-            
+
         })
-        
-        
+
+
         // if(player.x+player.width-20>=testBoundary.position.x &&
         //      player.x<=testBoundary.position.x+testBoundary.width -20
         //      && player.y+player.height-8>=testBoundary.position.y && 
         //      player.y<=testBoundary.position.y+testBoundary.height-50){
         //         console.log("collision")
-              
+
 
         // }
         // if(iscoll({rect1:player,rect2:testBoundary})){
         //     console.log("collision")
         // }
-        let moving =true;
-        if (keys.w.pressed && lastKey==='w') {
-            for(let i=0;i<Boundaries.length;i++){
-                let curr =Boundaries[i];
-                if(iscoll({rect1:player,rect2:{...curr,position:{
-                    x:curr.position.x,
-                    y:curr.position.y+6
-                }}})){
-                    console.log("collision")
-                    moving=false;
+        let moving = true;
+        if (keys.w.pressed && lastKey === 'w') {
+            for (let i = 0; i < Boundaries.length; i++) {
+                let curr = Boundaries[i];
+                if (iscoll({
+                    rect1: player, rect2: {
+                        ...curr, position: {
+                            x: curr.position.x,
+                            y: curr.position.y + 6
+                        }
+                    }
+                })) {
+                    // console.log("collision")
+                    moving = false;
                     break;
                 }
-                
+
 
             }
             player.setAnimation(upImages);
-            if(moving){
+            if (moving) {
                 background.position.y += 2;
+                foreground.position.y +=2 ;
                 Boundaries.forEach(boundary => {
-                    boundary.position.y+= 2;
+                    boundary.position.y += 2;
                 });
             }
-          
-        } else if (keys.a.pressed && lastKey==='a') {
-            for(let i=0;i<Boundaries.length;i++){
-                let curr =Boundaries[i];
-                if(iscoll({rect1:player,rect2:{...curr,position:{
-                    x:curr.position.x+6,
-                    y:curr.position.y
-                }}})){
-                    console.log("collision")
-                    moving=false;
+
+        } else if (keys.a.pressed && lastKey === 'a') {
+            for (let i = 0; i < Boundaries.length; i++) {
+                let curr = Boundaries[i];
+                if (iscoll({
+                    rect1: player, rect2: {
+                        ...curr, position: {
+                            x: curr.position.x + 6,
+                            y: curr.position.y
+                        }
+                    }
+                })) {
+                    // console.log("collision")
+                    moving = false;
                     break;
                 }
-                
+
 
             }
             player.setAnimation(leftImages);
-            if(moving){
-            
-            background.position.x += 2;
-            Boundaries.forEach(boundary => {
-                boundary.position.x += 2;
-                
+            if (moving) {
 
-            });
-            
-        }
-        } else if (keys.s.pressed && lastKey==='s') {
-            for(let i=0;i<Boundaries.length;i++){
-                let curr =Boundaries[i];
-                if(iscoll({rect1:player,rect2:{...curr,position:{
-                    x:curr.position.x,
-                    y:curr.position.y-6
-                }}})){
-                    console.log("collision")
-                    moving=false;
+                background.position.x += 2;
+                foreground.position.x +=2;
+                Boundaries.forEach(boundary => {
+                    boundary.position.x += 2;
+
+
+                });
+
+            }
+        } else if (keys.s.pressed && lastKey === 's') {
+            for (let i = 0; i < Boundaries.length; i++) {
+                let curr = Boundaries[i];
+                if (iscoll({
+                    rect1: player, rect2: {
+                        ...curr, position: {
+                            x: curr.position.x,
+                            y: curr.position.y - 6
+                        }
+                    }
+                })) {
+                    // console.log("collision")
+                    moving = false;
                     break;
                 }
-                
+
 
             }
             player.setAnimation(downImages);
-            if(moving){
-            background.position.y -= 2;
-            Boundaries.forEach(boundary => {
-                boundary.position.y -= 2;
-            });
-            
-        }
-        } else if (keys.d.pressed && lastKey==='d') {
-            for(let i=0;i<Boundaries.length;i++){
-                let curr =Boundaries[i];
-                if(iscoll({rect1:player,rect2:{...curr,position:{
-                    x:curr.position.x-6,
-                    y:curr.position.y
-                }}})){
-                    console.log("collision")
-                    moving=false;
+            if (moving) {
+                background.position.y -= 2;
+                foreground.position.y -= 2;
+                Boundaries.forEach(boundary => {
+                    boundary.position.y -= 2;
+                });
+
+            }
+        } else if (keys.d.pressed && lastKey === 'd') {
+            for (let i = 0; i < Boundaries.length; i++) {
+                let curr = Boundaries[i];
+                if (iscoll({
+                    rect1: player, rect2: {
+                        ...curr, position: {
+                            x: curr.position.x - 6,
+                            y: curr.position.y
+                        }
+                    }
+                })) {
+                    // console.log("collision")
+                    moving = false;
                     break;
                 }
-                
+
 
             }
             player.setAnimation(rightImages);
-            if(moving){
-            background.position.x -= 2;
-            Boundaries.forEach(boundary => {
-                boundary.position.x -= 2;
-            });
-            testBoundary.position.x-=2;
+            if (moving) {
+                background.position.x -= 2;
+                foreground.position.x -=2;
+                Boundaries.forEach(boundary => {
+                    boundary.position.x -= 2;
+                });
+                testBoundary.position.x -= 2;
+            }
         }
-        }
-       
-       
 
-    
-        player.updateAnimation();
-        player.draw(context);
+
+
+
+
+
         window.requestAnimationFrame(animate);
 
 
-       
+
 
         // context.fillRect(512, 270, 50, 50);
 
@@ -301,7 +333,7 @@ window.addEventListener('keydown', (e) => {
 })
 
 window.addEventListener('keyup', (e) => {
-    console.log(e.key)
+    // console.log(e.key)
     switch (e.key) {
         case 'w':
             keys.w.pressed = false;
@@ -316,5 +348,5 @@ window.addEventListener('keyup', (e) => {
             keys.d.pressed = false;
             break
     }
-    console.log(keys)
+    // console.log(keys)
 })
