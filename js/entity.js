@@ -1,6 +1,5 @@
 export default class entity {
   constructor(x, y, width, height) {
-    // this.image = image;
     this.x = x;
     this.y = y;
     this.width = width;
