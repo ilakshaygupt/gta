@@ -22,17 +22,6 @@ export default class Player extends entity {
       this.height
     );
   }
-  updateAnimation() {
-
-
-    if (gameFrame % 20 == 0) this.currentFrame++;
-
-    gameFrame++;
-
-    if (this.currentFrame > this.animationFrames.length - 1) {
-      this.currentFrame = 0;
-    }
-  }
   setAnimation(images) {
     this.animationFrames = images;
     this.currentFrame = 0;

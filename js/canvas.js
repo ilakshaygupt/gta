@@ -35,34 +35,24 @@ class Boundary {
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 }
-
+let speedMultiplier=2;
 class Airplane {
     constructor(canvasWidth, canvasHeight, image) {
         this.image = image;
-
-       
         this.position = {
             x: Math.random() * canvasWidth,
             y: Math.random() * canvasHeight
         };
-
-      
         this.velocity = {
             x: (Math.random() - 0.5) * 2,
             y: (Math.random() - 0.5) * 2  
         };
     }
-
-    update() {
-        
+    update() {  
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
-
-        
     }
-
-    draw() {
-       
+    draw() {  
         context.drawImage(this.image, this.position.x, this.position.y);
     }
 }
@@ -71,7 +61,7 @@ const airplaneImage = new Image();
 airplaneImage.src = '../assets/ballon.png';
 const airplane = new Airplane(canvas.width, canvas.height, airplaneImage);
 
-
+let isSpeedBoostActive=false;
 
 const offset = {
     x: 0,
@@ -144,8 +134,6 @@ class Sprite {
     }
 }
 
-
-
 const testBoundary = new Boundary({
     position: {
         x: 400,
@@ -170,7 +158,6 @@ image.onload = () => {
         },
         image: foregroundImage
     })
-
     const aeroplane = new Sprite({
         position: {
             x: offset.x,
@@ -178,7 +165,6 @@ image.onload = () => {
         },
         image: aeroplaneImage
     })
-
     function iscoll({ rect1, rect2 }) {
         return (rect1.x + rect1.width - 20 >= rect2.position.x &&
             rect1.x <= rect2.position.x + rect2.width - 20
@@ -186,35 +172,19 @@ image.onload = () => {
             rect1.y <= rect2.position.y + rect2.height - 50)
     
     }
-    
     function animate() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         background.draw()
-        player.updateAnimation()
         player.draw(context)
         foreground.draw()
-
         // console.log('Foreground drwan')
         //drawing the boundaries 
         Boundaries.forEach(Boundary => {
             Boundary.draw()
 
         })
-
         airplane.update();
         airplane.draw(context);
-
-        // if(player.x+player.width-20>=testBoundary.position.x &&
-        //      player.x<=testBoundary.position.x+testBoundary.width -20
-        //      && player.y+player.height-8>=testBoundary.position.y && 
-        //      player.y<=testBoundary.position.y+testBoundary.height-50){
-        //         console.log("collision")
-
-
-        // }
-        // if(iscoll({rect1:player,rect2:testBoundary})){
-        //     console.log("collision")
-        // }
         let moving = true;
         if (keys.w.pressed && lastKey === 'w') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -232,19 +202,26 @@ image.onload = () => {
                     collisionsound.play()
                     break;
                 }
-
-
             }
             player.setAnimation(upImages.slice(upCounter,upImages.length));
             upCounter=(upCounter+1)%upImages.length;
             if (moving) {
-                background.position.y += 2;
+                if (isSpeedBoostActive) {
+                    background.position.y += 4 * speedMultiplier; // Increase the speed
+                    foreground.position.y += 4 * speedMultiplier;
+                    Boundaries.forEach(boundary => {
+                        boundary.position.y += 4 * speedMultiplier;
+                    });
+                }
+                    else{
+                        background.position.y += 2;
                 foreground.position.y +=2 ;
                 Boundaries.forEach(boundary => {
                     boundary.position.y += 2;
                 });
+                    }
+                
             }
-
         } else if (keys.a.pressed && lastKey === 'a') {
             for (let i = 0; i < Boundaries.length; i++) {
                 let curr = Boundaries[i];
@@ -261,22 +238,22 @@ image.onload = () => {
                     collisionsound.play()
                     break;
                 }
-
-
             }
-            
             player.setAnimation(leftImages.slice(leftCounter,leftImages.length));
             leftCounter=(leftCounter+1)%leftImages.length;
             if (moving) {
-
+                if(isSpeedBoostActive){
+                    background.position.x += 4 * speedMultiplier; // Increase the speed
+                    foreground.position.x += 4 * speedMultiplier;
+                    Boundaries.forEach(boundary => {
+                        boundary.position.x += 4 * speedMultiplier;
+                    });
+                }
                 background.position.x += 2;
                 foreground.position.x +=2;
                 Boundaries.forEach(boundary => {
                     boundary.position.x += 2;
-
-
                 });
-
             }
         } else if (keys.s.pressed && lastKey === 's') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -294,18 +271,22 @@ image.onload = () => {
                     collisionsound.play()
                     break;
                 }
-
-
             }
             player.setAnimation(downImages.slice(downCounter,downImages.length));
             downCounter=(downCounter+1)%downImages.length;
             if (moving) {
+                if(isSpeedBoostActive){
+                    background.position.y -= 4 * speedMultiplier; // Increase the speed
+                    foreground.position.y -= 4 * speedMultiplier;
+                    Boundaries.forEach(boundary => {
+                        boundary.position.y -= 4 * speedMultiplier;
+                    });
+                }
                 background.position.y -= 2;
                 foreground.position.y -= 2;
                 Boundaries.forEach(boundary => {
                     boundary.position.y -= 2;
                 });
-
             }
         } else if (keys.d.pressed && lastKey === 'd') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -323,12 +304,17 @@ image.onload = () => {
                     collisionsound.play()
                     break;
                 }
-
-
             }
             player.setAnimation(rightImages.slice(rightCounter,rightImages.length));
             rightCounter=(rightCounter+1)%rightImages.length;
             if (moving) {
+                if(isSpeedBoostActive){
+                    background.position.x -= 4 * speedMultiplier; // Increase the speed
+                    foreground.position.x -= 4 * speedMultiplier;
+                    Boundaries.forEach(boundary => {
+                        boundary.position.x -= 4 * speedMultiplier;
+                    });
+                }
                 background.position.x -= 2;
                 foreground.position.x -=2;
                 Boundaries.forEach(boundary => {
@@ -337,21 +323,8 @@ image.onload = () => {
                 testBoundary.position.x -= 2;
             }
         }
-
-
-
-
-
-
         window.requestAnimationFrame(animate);
-
-
-
-
-        // context.fillRect(512, 270, 50, 50);
-
     }
-
     animate()
 }
 
@@ -367,8 +340,11 @@ const keys = {
     },
     d: {
         pressed: false
+    },
+    u:{
+        pressed:false
     }
-
+    
 }
 
 window.addEventListener('keydown', (e) => {
@@ -396,17 +372,16 @@ window.addEventListener('keydown', (e) => {
             break
         case 'm':
             toggleMusic();
-            
             break
         case 'c':
             changeMusic();
-            
+            break;
+        case 'u':
+            isSpeedBoostActive=!isSpeedBoostActive;
             break;
     }
 })
 window.addEventListener('keyup', (e) => {
-    
-    
     switch (e.key) {
         case 'w':
             keys.w.pressed = false;
