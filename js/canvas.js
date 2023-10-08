@@ -13,8 +13,11 @@ for (let i = 0; i < collisions.length; i = i + 100) {
     collisionMap.push(collisions.slice(i, i + 100))
 }
 
+let upCounter=0;
+let downCounter=0;
+let leftCounter=0;
+let rightCounter=0;
 
-//creating the collision object we want to render
 class Boundary {
     static width = 40
     static height = 40
@@ -108,7 +111,7 @@ const testBoundary = new Boundary({
     }
 })
 let lastKey = 'w'
-
+player.setAnimation(downImages.slice(0, 1));
 image.onload = () => {
     const background = new Sprite({
         position: {
@@ -181,7 +184,8 @@ image.onload = () => {
 
 
             }
-            player.setAnimation(upImages);
+            player.setAnimation(upImages.slice(upCounter,upImages.length));
+            upCounter=(upCounter+1)%upImages.length;
             if (moving) {
                 background.position.y += 2;
                 foreground.position.y +=2 ;
@@ -208,7 +212,9 @@ image.onload = () => {
 
 
             }
-            player.setAnimation(leftImages);
+            
+            player.setAnimation(leftImages.slice(leftCounter,leftImages.length));
+            leftCounter=(leftCounter+1)%leftImages.length;
             if (moving) {
 
                 background.position.x += 2;
@@ -238,7 +244,8 @@ image.onload = () => {
 
 
             }
-            player.setAnimation(downImages);
+            player.setAnimation(downImages.slice(downCounter,downImages.length));
+            downCounter=(downCounter+1)%downImages.length;
             if (moving) {
                 background.position.y -= 2;
                 foreground.position.y -= 2;
@@ -265,7 +272,8 @@ image.onload = () => {
 
 
             }
-            player.setAnimation(rightImages);
+            player.setAnimation(rightImages.slice(rightCounter,rightImages.length));
+            rightCounter=(rightCounter+1)%rightImages.length;
             if (moving) {
                 background.position.x -= 2;
                 foreground.position.x -=2;
@@ -331,22 +339,25 @@ window.addEventListener('keydown', (e) => {
             break
     }
 })
-
 window.addEventListener('keyup', (e) => {
-    // console.log(e.key)
+    
+    
     switch (e.key) {
         case 'w':
             keys.w.pressed = false;
-            break
+            player.setAnimation(upImages.slice(0, 1)); 
+            break;
         case 's':
             keys.s.pressed = false;
-            break
+            player.setAnimation(downImages.slice(0, 1)); 
+            break;
         case 'a':
             keys.a.pressed = false;
-            break
+            player.setAnimation(leftImages.slice(0, 1)); 
+            break;
         case 'd':
             keys.d.pressed = false;
-            break
+            player.setAnimation(rightImages.slice(0, 1));
+            break;
     }
-    // console.log(keys)
-})
+});
