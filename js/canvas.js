@@ -34,6 +34,43 @@ class Boundary {
     }
 }
 
+class Airplane {
+    constructor(canvasWidth, canvasHeight, image) {
+        this.image = image;
+
+       
+        this.position = {
+            x: Math.random() * canvasWidth,
+            y: Math.random() * canvasHeight
+        };
+
+      
+        this.velocity = {
+            x: (Math.random() - 0.5) * 2,
+            y: (Math.random() - 0.5) * 2  
+        };
+    }
+
+    update() {
+        
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+
+        
+    }
+
+    draw() {
+       
+        context.drawImage(this.image, this.position.x, this.position.y);
+    }
+}
+
+const airplaneImage = new Image();
+airplaneImage.src = '../assets/ballon.png';
+const airplane = new Airplane(canvas.width, canvas.height, airplaneImage);
+
+
+
 const offset = {
     x: 0,
     y: 0
@@ -64,6 +101,9 @@ image.src = '../assets/GTA_MAP[1]_updated.png'
 // console.log(image)
 const foregroundImage = new Image()
 foregroundImage.src = '../assets/Foreground.png'
+
+const aeroplaneImage = new Image()
+aeroplaneImage.src = '../assets/aeroplane.png'
 
 let up = new Image();
 let down = new Image();
@@ -129,6 +169,14 @@ image.onload = () => {
         image: foregroundImage
     })
 
+    const aeroplane = new Sprite({
+        position: {
+            x: offset.x,
+            y: offset.y
+        },
+        image: aeroplaneImage
+    })
+
     function iscoll({ rect1, rect2 }) {
         return (rect1.x + rect1.width - 20 >= rect2.position.x &&
             rect1.x <= rect2.position.x + rect2.width - 20
@@ -143,16 +191,16 @@ image.onload = () => {
         player.updateAnimation()
         player.draw(context)
         foreground.draw()
-        
-        // console.log('Foreground drwan')
-            
 
+        // console.log('Foreground drwan')
         //drawing the boundaries 
         Boundaries.forEach(Boundary => {
             Boundary.draw()
 
         })
 
+        airplane.update();
+        airplane.draw(context);
 
         // if(player.x+player.width-20>=testBoundary.position.x &&
         //      player.x<=testBoundary.position.x+testBoundary.width -20
