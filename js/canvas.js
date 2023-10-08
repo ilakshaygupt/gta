@@ -1,4 +1,6 @@
 import Player from "./player.js"
+let walkingSound= document.getElementById('walking-sound')
+let collisionsound= document.getElementById('collision-sound')
 
 const canvas = document.querySelector('canvas')
 
@@ -227,6 +229,7 @@ image.onload = () => {
                 })) {
                     // console.log("collision")
                     moving = false;
+                    collisionsound.play()
                     break;
                 }
 
@@ -255,6 +258,7 @@ image.onload = () => {
                 })) {
                     // console.log("collision")
                     moving = false;
+                    collisionsound.play()
                     break;
                 }
 
@@ -287,6 +291,7 @@ image.onload = () => {
                 })) {
                     // console.log("collision")
                     moving = false;
+                    collisionsound.play()
                     break;
                 }
 
@@ -315,6 +320,7 @@ image.onload = () => {
                 })) {
                     // console.log("collision")
                     moving = false;
+                    collisionsound.play()
                     break;
                 }
 
@@ -371,24 +377,30 @@ window.addEventListener('keydown', (e) => {
         case 'w':
             keys.w.pressed = true;
             lastKey = 'w'
+            walkingSound.play()
             break
         case 's':
             keys.s.pressed = true;
             lastKey = 's'
+            walkingSound.play()
             break
         case 'a':
             keys.a.pressed = true;
             lastKey = 'a'
+            walkingSound.play()
             break
         case 'd':
             keys.d.pressed = true;
             lastKey = 'd'
+            walkingSound.play()
             break
         case 'm':
             toggleMusic();
+            
             break
         case 'c':
             changeMusic();
+            
             break;
     }
 })
@@ -398,18 +410,22 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'w':
             keys.w.pressed = false;
+            walkingSound.pause()
             player.setAnimation(upImages.slice(0, 1)); 
             break;
         case 's':
             keys.s.pressed = false;
+            walkingSound.pause()
             player.setAnimation(downImages.slice(0, 1)); 
             break;
         case 'a':
             keys.a.pressed = false;
+            walkingSound.pause()
             player.setAnimation(leftImages.slice(0, 1)); 
             break;
         case 'd':
             keys.d.pressed = false;
+            walkingSound.pause()
             player.setAnimation(rightImages.slice(0, 1));
             break;
     }
@@ -429,7 +445,9 @@ function changeMusic() {
         bgMusic.pause();
         currentAudioIndex = (currentAudioIndex + 1) % audioFiles.length; 
         bgMusic.src = audioFiles[currentAudioIndex]; 
+        bgMusic.volume=0.3
         bgMusic.play();
+        
     }
 }
 function toggleMusic() {
@@ -437,7 +455,9 @@ function toggleMusic() {
         bgMusic.pause();
         isMusicPlaying = false;
     } else {
+        bgMusic.volume=0.3
         bgMusic.play();
+        
         isMusicPlaying = true;
     }
 }
