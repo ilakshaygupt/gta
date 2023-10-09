@@ -1,4 +1,7 @@
 import Player from "./player.js"
+import Sprite from "./sprite.js"
+import Airplane from "./airplane.js"
+import Boundary from "./boundary.js"
 let walkingSound= document.getElementById('walking-sound')
 let collisionsound= document.getElementById('collision-sound')
 
@@ -24,42 +27,7 @@ let downCarCounter=0;
 let leftCarCounter=0;
 let rightCarCounter=0;
 
-class Boundary {
-    static width = 40
-    static height = 40
-    constructor({ position }) {
-        this.position = position
-        this.width = 40  // 16 pixel * 250% zoom level = 4000
-        this.height = 40 // 16 pixel * 250% zoom level = 4000
-    }
-
-    //drawing the rectangles of collision
-    draw() {
-        context.fillStyle = 'rgba(0,0,0,0)'
-        context.fillRect(this.position.x, this.position.y, this.width, this.height)
-    }
-}
 let speedMultiplier=2;
-class Airplane {
-    constructor(canvasWidth, canvasHeight, image) {
-        this.image = image;
-        this.position = {
-            x: Math.random() * canvasWidth,
-            y: Math.random() * canvasHeight
-        };
-        this.velocity = {
-            x: (Math.random() - 0.5) * 2,
-            y: (Math.random() - 0.5) * 2  
-        };
-    }
-    update() {  
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
-    }
-    draw() {  
-        context.drawImage(this.image, this.position.x, this.position.y);
-    }
-}
 
 const airplaneImage = new Image();
 airplaneImage.src = '../assets/ballon.png';
@@ -74,9 +42,7 @@ const offset = {
 
 // filling up Boundaries array with collison objects
 const Boundaries = []
-//iterating each row
 collisionMap.forEach((row, i) => {
-    //iterating inside each row
     row.forEach((Symbol, j) => {
         if (Symbol === 13188)
             Boundaries.push(
@@ -89,8 +55,6 @@ collisionMap.forEach((row, i) => {
             )
     })
 })
-
-
 
 const image = new Image()
 image.src = '../assets/GTA_MAP[1]_updated.png'
@@ -148,15 +112,6 @@ function fillArray(folder, count, images) {
 }
 let player = new Player(512, 270, 64, 64, upImages);
 let car = new Player(512, 270, 64, 64, upCarImages);
-class Sprite {
-    constructor({ position, image }) {
-        this.position = position
-        this.image = image
-    }
-    draw() {
-        context.drawImage(this.image, this.position.x, this.position.y)
-    }
-}
 
 const testBoundary = new Boundary({
     position: {
@@ -168,6 +123,32 @@ let lastKey = 'w'
 let isCar = false;
 player.setAnimation(downImages.slice(0, 1));
 car.setAnimation(downCarImages.slice(0, 1));
+function iscoll({ rect1, rect2 }) {
+    return (rect1.x + rect1.width - 20 >= rect2.position.x &&
+        rect1.x <= rect2.position.x + rect2.width - 20
+        && rect1.y + rect1.height - 8 >= rect2.position.y &&
+        rect1.y <= rect2.position.y + rect2.height - 50)
+}
+function checkCollisions(player, Boundaries,X,Y) {
+    let moving=true;
+    for (let i = 0; i < Boundaries.length; i++) {
+        let curr = Boundaries[i];
+        if (iscoll({
+            rect1: player, rect2: {
+                ...curr, position: {
+                    x: curr.position.x + X,
+                    y: curr.position.y + Y
+                }
+            }
+        })) {
+            moving = false;
+            collisionsound.play();
+            break;
+        }
+    }
+    return moving;
+}
+
 image.onload = () => {
     const background = new Sprite({
         position: {
@@ -191,54 +172,28 @@ image.onload = () => {
         },
         image: aeroplaneImage
     })
-    function iscoll({ rect1, rect2 }) {
-        return (rect1.x + rect1.width - 20 >= rect2.position.x &&
-            rect1.x <= rect2.position.x + rect2.width - 20
-            && rect1.y + rect1.height - 8 >= rect2.position.y &&
-            rect1.y <= rect2.position.y + rect2.height - 50)
-    }
+   
     function animate() {
-
         context.clearRect(0, 0, canvas.width, canvas.height);
-        background.draw()
+        background.draw(context)
         if(isCar){
-                upCounter=0;
-                leftCounter=0;
-                rightCounter=0;
-                downCounter=0;
+            upCounter=0,leftCounter=0,rightCounter=0,downCounter=0;
             car.draw(context)
         }
        else if(!isCar) {
-        upCarCounter=0;
-        leftCarCounter=0;
-        rightCarCounter=0;
-        downCarCounter=0;
-        player.draw(context)
+            upCarCounter=0,leftCarCounter=0,rightCarCounter=0,downCarCounter=0;
+            player.draw(context)
        }
-        foreground.draw()
+       
+        foreground.draw(context)
         Boundaries.forEach(Boundary => {
-            Boundary.draw()
+            Boundary.draw(context)
         })
         airplane.update();
         airplane.draw(context);
         let moving = true;
-       
         if (keys.w.pressed && lastKey === 'w') {
-            for (let i = 0; i < Boundaries.length; i++) {
-                let curr = Boundaries[i];
-                if (iscoll({
-                    rect1: player, rect2: {
-                        ...curr, position: {
-                            x: curr.position.x,
-                            y: curr.position.y + 6
-                        }
-                    }
-                })) {
-                    moving = false;
-                    collisionsound.play()
-                    break;
-                }
-            }
+            moving=checkCollisions(player,Boundaries,0,6)
             if(isCar){
                 car.setAnimation(upCarImages.slice(upCounter,upCarImages.length));
                 upCarCounter=(upCarCounter+1)%upCarImages.length;
@@ -247,7 +202,6 @@ image.onload = () => {
                 player.setAnimation(upImages.slice(upCounter,upImages.length));
                 upCounter=(upCounter+1)%upImages.length;
             }
-           
             if (moving) {
                 if (isSpeedBoostActive || isCar) {
                     background.position.y += 4 * speedMultiplier;
@@ -265,21 +219,7 @@ image.onload = () => {
                     }
             }
         } else if (keys.a.pressed && lastKey === 'a') {
-            for (let i = 0; i < Boundaries.length; i++) {
-                let curr = Boundaries[i];
-                if (iscoll({
-                    rect1: player, rect2: {
-                        ...curr, position: {
-                            x: curr.position.x + 6,
-                            y: curr.position.y
-                        }
-                    }
-                })) {
-                    moving = false;
-                    collisionsound.play()
-                    break;
-                }
-            }
+            moving=checkCollisions(player,Boundaries,6,0)
             if(isCar){
                 car.setAnimation(leftCarImages.slice(leftCounter,leftCarImages.length));
                 leftCarCounter=(leftCarCounter+1)%leftCarImages.length;
@@ -288,7 +228,6 @@ image.onload = () => {
                 player.setAnimation(leftImages.slice(leftCounter,leftImages.length));
             leftCounter=(leftCounter+1)%leftImages.length;
             }
-            
             if (moving) {
                 if(isSpeedBoostActive || isCar){
                     background.position.x += 4 * speedMultiplier; 
@@ -304,21 +243,7 @@ image.onload = () => {
                 });
             }
         } else if (keys.s.pressed && lastKey === 's') {
-            for (let i = 0; i < Boundaries.length; i++) {
-                let curr = Boundaries[i];
-                if (iscoll({
-                    rect1: player, rect2: {
-                        ...curr, position: {
-                            x: curr.position.x,
-                            y: curr.position.y - 6
-                        }
-                    }
-                })) {
-                    moving = false;
-                    collisionsound.play()
-                    break;
-                }
-            }
+            moving=checkCollisions(player,Boundaries,0,-6)
             if(isCar){
                 car.setAnimation(downCarImages.slice(downCounter,downCarImages.length));
                 downCarCounter=(downCarCounter+1)%downCarImages.length;
@@ -327,7 +252,6 @@ image.onload = () => {
                 player.setAnimation(downImages.slice(downCounter,downImages.length));
                 downCounter=(downCounter+1)%downImages.length;
             }
-
             if (moving) {
                 if(isSpeedBoostActive || isCar){
                     background.position.y -= 4 * speedMultiplier;
@@ -343,21 +267,7 @@ image.onload = () => {
                 });
             }
         } else if (keys.d.pressed && lastKey === 'd') {
-            for (let i = 0; i < Boundaries.length; i++) {
-                let curr = Boundaries[i];
-                if (iscoll({
-                    rect1: player, rect2: {
-                        ...curr, position: {
-                            x: curr.position.x - 6,
-                            y: curr.position.y
-                        }
-                    }
-                })) {
-                    moving = false;
-                    collisionsound.play()
-                    break;
-                }
-            }
+            moving=checkCollisions(player,Boundaries,-6,0)
             if(isCar){
                 car.setAnimation(rightCarImages.slice(rightCounter,rightCarImages.length));
                 rightCarCounter=(rightCarCounter+1)%rightCarImages.length;
@@ -449,27 +359,18 @@ window.addEventListener('keyup', (e) => {
         case 'w':
             keys.w.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(upCarImages.slice(0, 1));
-            else player.setAnimation(upImages.slice(0, 1)); 
             break;
         case 's':
             keys.s.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(downCarImages.slice(0, 1));
-           else  player.setAnimation(downImages.slice(0, 1)); 
             break;
         case 'a':
             keys.a.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(leftCarImages.slice(0, 1));
-            else player.setAnimation(leftImages.slice(0, 1));
-            
             break;
         case 'd':
             keys.d.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(rightCarImages.slice(0, 1));
-           else  player.setAnimation(rightImages.slice(0, 1));
             break;
     }
 });
