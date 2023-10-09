@@ -6,8 +6,34 @@ body {
 canvas {
     background-color: rgb(59, 161, 213);
     overflow: hidden;
-    margin-top: 6%;
+    margin-top: 4%;
     margin-left: 14%;
     
 
 }
+
+
+body {
+    background-color: #ffffff;
+    
+}
+
+
+body.dark-mode  {
+    background-color: #000000;
+    
+}
+
+#toggleDarkMode{
+    margin-left:700px;
+    margin-top: 10px;
+    border : 2px solid red;
+    border-radius: 20px;
+    background-color:gold;
+}
+
+#toggleDarkMode:hover{
+    background-color: white;
+}
+
+
