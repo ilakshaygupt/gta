@@ -1,9 +1,5 @@
-import entity from "./entity.js";
-let gameFrame = 0;
-export default class Player extends entity {
+export default class Player  {
   constructor(x, y, width, height, defaultImages) {
-    super();
-
     this.x = x;
     this.y = y;
     this.width = width;
@@ -21,8 +17,6 @@ export default class Player extends entity {
       this.width,
       this.height
     );
-
-
   }
   setAnimation(images) {
     this.animationFrames = images;
