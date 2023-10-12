@@ -1,7 +1,10 @@
 import Player from "./player.js"
-let walkingSound= document.getElementById('walking-sound')
-let collisionsound= document.getElementById('collision-sound')
-let carSound= document.getElementById('car-sound')
+import Sprite from "./sprite.js"
+import Airplane from "./airplane.js"
+import Boundary from "./boundary.js"
+let walkingSound = document.getElementById('walking-sound')
+let collisionsound = document.getElementById('collision-sound')
+let carSound = document.getElementById('car-sound')
 
 const canvas = document.querySelector('canvas')
 
@@ -14,14 +17,14 @@ const body = document.body;
 
 function toggleDarkMode() {
     body.classList.toggle('dark-mode');
-    
-    
+
+
     if (body.classList.contains('dark-mode')) {
-        
-        canvas.style.opacity = '0.5'; 
+
+        canvas.style.opacity = '0.5';
     } else {
-       
-        canvas.style.opacity = '1'; 
+
+        canvas.style.opacity = '1';
     }
 }
 
@@ -39,57 +42,22 @@ for (let i = 0; i < collisions.length; i = i + 100) {
     collisionMap.push(collisions.slice(i, i + 100))
 }
 
-let upCounter=0;
-let downCounter=0;
-let leftCounter=0;
-let rightCounter=0;
-let upCarCounter=0;
-let downCarCounter=0;
-let leftCarCounter=0;
-let rightCarCounter=0;
+let upCounter = 0;
+let downCounter = 0;
+let leftCounter = 0;
+let rightCounter = 0;
+let upCarCounter = 0;
+let downCarCounter = 0;
+let leftCarCounter = 0;
+let rightCarCounter = 0;
 
-class Boundary {
-    static width = 40
-    static height = 40
-    constructor({ position }) {
-        this.position = position
-        this.width = 40  // 16 pixel * 250% zoom level = 4000
-        this.height = 40 // 16 pixel * 250% zoom level = 4000
-    }
-
-    //drawing the rectangles of collision
-    draw() {
-        context.fillStyle = 'rgba(0,0,0,0)'
-        context.fillRect(this.position.x, this.position.y, this.width, this.height)
-    }
-}
-let speedMultiplier=2;
-class Airplane {
-    constructor(canvasWidth, canvasHeight, image) {
-        this.image = image;
-        this.position = {
-            x: Math.random() * canvasWidth,
-            y: Math.random() * canvasHeight
-        };
-        this.velocity = {
-            x: (Math.random() - 0.5) ,
-            y: (Math.random() - 0.5)   
-        };
-    }
-    update() {  
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
-    }
-    draw() {  
-        context.drawImage(this.image, this.position.x, this.position.y);
-    }
-}
+let speedMultiplier = 2;
 
 const airplaneImage = new Image();
 airplaneImage.src = '../assets/ballon.png';
 const airplane = new Airplane(canvas.width, canvas.height, airplaneImage);
 
-let isSpeedBoostActive=false;
+let isSpeedBoostActive = false;
 
 const offset = {
     x: 0,
@@ -173,14 +141,16 @@ function fillArray(folder, count, images) {
 }
 let player = new Player(512, 270, 64, 64, upImages);
 let car = new Player(512, 270, 64, 64, upCarImages);
-class Sprite {
-    constructor({ position, image }) {
-        this.position = position
-        this.image = image
-    }
-    draw() {
-        context.drawImage(this.image, this.position.x, this.position.y)
-    }
+let enemy0 = new Player(2000, 600, 64, 64, upImages);
+let enemy1 = new Player(1000, 1200, 64, 64, upImages);
+let enemy2 = new Player(2000, 1240, 64, 64, upImages);
+let enemy3 = new Player(3600, 1100, 64, 64, upImages);
+let enemy4 = new Player(3200, 1780, 64, 64, upImages);
+let enemy5 = new Player(2100, 1880, 64, 64, upImages);
+let enemy6 = new Player(1040, 600, 64, 64, upImages);
+let allEnemy = [];
+for (let i = 0; i < 7; i++) {
+    allEnemy.push(eval(`enemy${i}`));
 }
 
 const testBoundary = new Boundary({
@@ -193,6 +163,13 @@ let lastKey = 'w'
 let isCar = false;
 player.setAnimation(downImages.slice(0, 1));
 car.setAnimation(downCarImages.slice(0, 1));
+function updateObjectsPosition(objects, X, Y) {
+    objects.forEach(object => {
+        object.position.x += X;
+        object.position.y += Y;
+
+    });
+}
 image.onload = () => {
     const background = new Sprite({
         position: {
@@ -223,32 +200,35 @@ image.onload = () => {
             rect1.y <= rect2.position.y + rect2.height - 50)
     }
     function animate() {
-
         context.clearRect(0, 0, canvas.width, canvas.height);
-        background.draw()
-        if(isCar){
-                upCounter=0;
-                leftCounter=0;
-                rightCounter=0;
-                downCounter=0;
+        background.draw(context)
+        allEnemy.forEach(enemy => {
+            enemy.draw(context);
+        });
+        if (isCar) {
+            upCounter = 0;
+            leftCounter = 0;
+            rightCounter = 0;
+            downCounter = 0;
             car.draw(context)
         }
-       else if(!isCar) {
-        upCarCounter=0;
-        leftCarCounter=0;
-        rightCarCounter=0;
-        downCarCounter=0;
-        player.draw(context)
-       }
-        foreground.draw()
+        else if (!isCar) {
+            upCarCounter = 0;
+            leftCarCounter = 0;
+            rightCarCounter = 0;
+            downCarCounter = 0;
+            player.draw(context)
+        }
+        foreground.draw(context)
         Boundaries.forEach(Boundary => {
-            Boundary.draw()
+            Boundary.draw(context)
         })
 
         airplane.update();
         airplane.draw(context);
         let moving = true;
-       
+        const objectToUpdate = [background, airplane, ...Boundaries, foreground,]
+
         if (keys.w.pressed && lastKey === 'w') {
             for (let i = 0; i < Boundaries.length; i++) {
                 let curr = Boundaries[i];
@@ -265,34 +245,29 @@ image.onload = () => {
                     break;
                 }
             }
-            if(isCar){
-                car.setAnimation(upCarImages.slice(upCounter,upCarImages.length));
-                upCarCounter=(upCarCounter+1)%upCarImages.length;
+            if (isCar) {
+                car.setAnimation(upCarImages.slice(upCounter, upCarImages.length));
+                upCarCounter = (upCarCounter + 1) % upCarImages.length;
             }
-            else{
-                player.setAnimation(upImages.slice(upCounter,upImages.length));
-                upCounter=(upCounter+1)%upImages.length;
+            else {
+                player.setAnimation(upImages.slice(upCounter, upImages.length));
+                upCounter = (upCounter + 1) % upImages.length;
             }
-           
+
             if (moving) {
                 if (isSpeedBoostActive || isCar) {
                     walkingSound.pause()
-                    background.position.y += 2 * speedMultiplier;
-                    foreground.position.y += 2 * speedMultiplier;
-                    Boundaries.forEach(boundary => {
-                        boundary.position.y += 2 * speedMultiplier;
+                    updateObjectsPosition(objectToUpdate, 0, 2 * speedMultiplier)
+                    allEnemy.forEach(enemy => {
+                        enemy.y += 2 * speedMultiplier;
                     });
-                    airplane.position.y += 2*speedMultiplier;
                 }
-                    else{
-                        background.position.y += 2;
-                foreground.position.y +=2 ;
-                Boundaries.forEach(boundary => {
-                    boundary.position.y += 2;
-                });
-                airplane.position.y += 2;
-
-            }
+                else {
+                    updateObjectsPosition(objectToUpdate, 0, 2)
+                    allEnemy.forEach(enemy => {
+                        enemy.y += 2 * speedMultiplier;
+                    });
+                }
             }
         } else if (keys.a.pressed && lastKey === 'a') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -310,31 +285,28 @@ image.onload = () => {
                     break;
                 }
             }
-            if(isCar){
-                car.setAnimation(leftCarImages.slice(leftCounter,leftCarImages.length));
-                leftCarCounter=(leftCarCounter+1)%leftCarImages.length;
+            if (isCar) {
+                car.setAnimation(leftCarImages.slice(leftCounter, leftCarImages.length));
+                leftCarCounter = (leftCarCounter + 1) % leftCarImages.length;
             }
-            else{
-                player.setAnimation(leftImages.slice(leftCounter,leftImages.length));
-            leftCounter=(leftCounter+1)%leftImages.length;
+            else {
+                player.setAnimation(leftImages.slice(leftCounter, leftImages.length));
+                leftCounter = (leftCounter + 1) % leftImages.length;
             }
-            
             if (moving) {
-                if(isSpeedBoostActive || isCar){
+                if (isSpeedBoostActive || isCar) {
                     walkingSound.pause()
-                    background.position.x += 2 * speedMultiplier; 
-                    foreground.position.x += 2 * speedMultiplier;
-                    Boundaries.forEach(boundary => {
-                        boundary.position.x += 2 * speedMultiplier;
+                    allEnemy.forEach(enemy => {
+                        enemy.x += 2 * speedMultiplier;
                     });
-                    airplane.position.x += 2*speedMultiplier;
+                    updateObjectsPosition(objectToUpdate, 2 * speedMultiplier, 0)
                 }
-                background.position.x += 2;
-                foreground.position.x +=2;
-                Boundaries.forEach(boundary => {
-                    boundary.position.x += 2;
-                });
-                airplane.position.x += 2;
+                else {
+                    allEnemy.forEach(enemy => {
+                        enemy.x += 2;
+                    });
+                    updateObjectsPosition(objectToUpdate, 2, 0)
+                }
             }
         } else if (keys.s.pressed && lastKey === 's') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -352,31 +324,33 @@ image.onload = () => {
                     break;
                 }
             }
-            if(isCar){
-                car.setAnimation(downCarImages.slice(downCounter,downCarImages.length));
-                downCarCounter=(downCarCounter+1)%downCarImages.length;
+            if (isCar) {
+                car.setAnimation(downCarImages.slice(downCounter, downCarImages.length));
+                downCarCounter = (downCarCounter + 1) % downCarImages.length;
             }
-            else{
-                player.setAnimation(downImages.slice(downCounter,downImages.length));
-                downCounter=(downCounter+1)%downImages.length;
+            else {
+                player.setAnimation(downImages.slice(downCounter, downImages.length));
+                downCounter = (downCounter + 1) % downImages.length;
             }
 
             if (moving) {
-                if(isSpeedBoostActive || isCar){
+                if (isSpeedBoostActive || isCar) {
                     walkingSound.pause()
-                    background.position.y -= 2 * speedMultiplier;
-                    foreground.position.y -= 2 * speedMultiplier;
-                    Boundaries.forEach(boundary => {
-                        boundary.position.y -= 2 * speedMultiplier;
+
+                    allEnemy.forEach(enemy => {
+                        enemy.y -= 2 * speedMultiplier;
                     });
-                    airplane.position.y -= 2*speedMultiplier;
+                    updateObjectsPosition(objectToUpdate, 0, -2 * speedMultiplier)
+
+
                 }
-                background.position.y -= 2;
-                foreground.position.y -= 2;
-                Boundaries.forEach(boundary => {
-                    boundary.position.y -= 2;
-                });
-                airplane.position.y -= 2;
+                else {
+                    updateObjectsPosition(objectToUpdate, 0, -2)
+                    allEnemy.forEach(enemy => {
+                        enemy.y -= 2;
+                    });
+
+                }
             }
         } else if (keys.d.pressed && lastKey === 'd') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -394,30 +368,30 @@ image.onload = () => {
                     break;
                 }
             }
-            if(isCar){
-                car.setAnimation(rightCarImages.slice(rightCounter,rightCarImages.length));
-                rightCarCounter=(rightCarCounter+1)%rightCarImages.length;
+            if (isCar) {
+                car.setAnimation(rightCarImages.slice(rightCounter, rightCarImages.length));
+                rightCarCounter = (rightCarCounter + 1) % rightCarImages.length;
             }
-            else{
-                player.setAnimation(rightImages.slice(rightCounter,rightImages.length));
-                rightCounter=(rightCounter+1)%rightImages.length;
+            else {
+                player.setAnimation(rightImages.slice(rightCounter, rightImages.length));
+                rightCounter = (rightCounter + 1) % rightImages.length;
             }
             if (moving) {
-                if(isSpeedBoostActive || isCar){
+                if (isSpeedBoostActive || isCar) {
                     walkingSound.pause()
-                    background.position.x -= 2 * speedMultiplier; 
-                    foreground.position.x -= 2 * speedMultiplier;
-                    Boundaries.forEach(boundary => {
-                        boundary.position.x -= 2 * speedMultiplier;
+
+                    allEnemy.forEach(enemy => {
+                        enemy.x -= 2 * speedMultiplier;
                     });
-                    airplane.position.x -= 2*speedMultiplier;
+                    updateObjectsPosition(objectToUpdate, -2 * speedMultiplier, 0)
                 }
-                background.position.x -= 2;
-                foreground.position.x -=2;
-                Boundaries.forEach(boundary => {
-                    boundary.position.x -= 2;
-                });
-                airplane.position.x -= 2;
+                else {
+
+                    allEnemy.forEach(enemy => {
+                        enemy.x -= 2;
+                    });
+                    updateObjectsPosition(objectToUpdate, -2, 0)
+                }
             }
         }
         window.requestAnimationFrame(animate);
@@ -438,12 +412,12 @@ const keys = {
     d: {
         pressed: false
     },
-    u:{
-        pressed:false
+    u: {
+        pressed: false
     },
-    r:{
-        pressed:false
-    }   
+    r: {
+        pressed: false
+    }
 }
 window.addEventListener('keydown', (e) => {
 
@@ -475,10 +449,10 @@ window.addEventListener('keydown', (e) => {
             changeMusic();
             break;
         case 'u':
-            isSpeedBoostActive=!isSpeedBoostActive;
+            isSpeedBoostActive = !isSpeedBoostActive;
             break;
         case 'r':
-            isCar=!isCar;
+            isCar = !isCar;
             break;
     }
 })
@@ -487,46 +461,46 @@ window.addEventListener('keyup', (e) => {
         case 'w':
             keys.w.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(upCarImages.slice(0, 1));
-            else player.setAnimation(upImages.slice(0, 1)); 
+            if (isCar) car.setAnimation(upCarImages.slice(0, 1));
+            else player.setAnimation(upImages.slice(0, 1));
             break;
         case 's':
             keys.s.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(downCarImages.slice(0, 1));
-           else  player.setAnimation(downImages.slice(0, 1)); 
+            if (isCar) car.setAnimation(downCarImages.slice(0, 1));
+            else player.setAnimation(downImages.slice(0, 1));
             break;
         case 'a':
             keys.a.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(leftCarImages.slice(0, 1));
+            if (isCar) car.setAnimation(leftCarImages.slice(0, 1));
             else player.setAnimation(leftImages.slice(0, 1));
-            
+
             break;
         case 'd':
             keys.d.pressed = false;
             walkingSound.pause()
-            if(isCar) car.setAnimation(rightCarImages.slice(0, 1));
-           else  player.setAnimation(rightImages.slice(0, 1));
+            if (isCar) car.setAnimation(rightCarImages.slice(0, 1));
+            else player.setAnimation(rightImages.slice(0, 1));
             break;
     }
 });
 const audioFiles = [
     '../assets/audio/1.mp3',
-    '../assets/audio/2.mp3' 
+    '../assets/audio/2.mp3'
 ];
-let currentAudioIndex=0;
+let currentAudioIndex = 0;
 const bgMusic = new Audio(audioFiles[currentAudioIndex]);
 let isMusicPlaying = false;
 bgMusic.loop = true;
 function changeMusic() {
     if (isMusicPlaying) {
         bgMusic.pause();
-        currentAudioIndex = (currentAudioIndex + 1) % audioFiles.length; 
-        bgMusic.src = audioFiles[currentAudioIndex]; 
-        bgMusic.volume=0.3
+        currentAudioIndex = (currentAudioIndex + 1) % audioFiles.length;
+        bgMusic.src = audioFiles[currentAudioIndex];
+        bgMusic.volume = 0.3
         bgMusic.play();
-        
+
     }
 }
 function toggleMusic() {
@@ -534,7 +508,7 @@ function toggleMusic() {
         bgMusic.pause();
         isMusicPlaying = false;
     } else {
-        bgMusic.volume=0.3
+        bgMusic.volume = 0.3
         bgMusic.play();
         isMusicPlaying = true;
     }
