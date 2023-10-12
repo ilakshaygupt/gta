@@ -72,8 +72,8 @@ class Airplane {
             y: Math.random() * canvasHeight
         };
         this.velocity = {
-            x: (Math.random() - 0.5) * 2,
-            y: (Math.random() - 0.5) * 2  
+            x: (Math.random() - 0.5) ,
+            y: (Math.random() - 0.5)   
         };
     }
     update() {  
@@ -244,6 +244,7 @@ image.onload = () => {
         Boundaries.forEach(Boundary => {
             Boundary.draw()
         })
+
         airplane.update();
         airplane.draw(context);
         let moving = true;
@@ -281,6 +282,7 @@ image.onload = () => {
                     Boundaries.forEach(boundary => {
                         boundary.position.y += 2 * speedMultiplier;
                     });
+                    airplane.position.y += 2*speedMultiplier;
                 }
                     else{
                         background.position.y += 2;
@@ -288,7 +290,9 @@ image.onload = () => {
                 Boundaries.forEach(boundary => {
                     boundary.position.y += 2;
                 });
-                    }
+                airplane.position.y += 2;
+
+            }
             }
         } else if (keys.a.pressed && lastKey === 'a') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -323,12 +327,14 @@ image.onload = () => {
                     Boundaries.forEach(boundary => {
                         boundary.position.x += 2 * speedMultiplier;
                     });
+                    airplane.position.x += 2*speedMultiplier;
                 }
                 background.position.x += 2;
                 foreground.position.x +=2;
                 Boundaries.forEach(boundary => {
                     boundary.position.x += 2;
                 });
+                airplane.position.x += 2;
             }
         } else if (keys.s.pressed && lastKey === 's') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -363,12 +369,14 @@ image.onload = () => {
                     Boundaries.forEach(boundary => {
                         boundary.position.y -= 2 * speedMultiplier;
                     });
+                    airplane.position.y -= 2*speedMultiplier;
                 }
                 background.position.y -= 2;
                 foreground.position.y -= 2;
                 Boundaries.forEach(boundary => {
                     boundary.position.y -= 2;
                 });
+                airplane.position.y -= 2;
             }
         } else if (keys.d.pressed && lastKey === 'd') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -402,13 +410,14 @@ image.onload = () => {
                     Boundaries.forEach(boundary => {
                         boundary.position.x -= 2 * speedMultiplier;
                     });
+                    airplane.position.x -= 2*speedMultiplier;
                 }
                 background.position.x -= 2;
                 foreground.position.x -=2;
                 Boundaries.forEach(boundary => {
                     boundary.position.x -= 2;
                 });
-                testBoundary.position.x -= 2;
+                airplane.position.x -= 2;
             }
         }
         window.requestAnimationFrame(animate);
