@@ -51,7 +51,7 @@ let downCarCounter = 0;
 let leftCarCounter = 0;
 let rightCarCounter = 0;
 
-let speedMultiplier = 2;
+let speedMultiplier = 3;
 
 const airplaneImage = new Image();
 airplaneImage.src = '../assets/ballon.png';
@@ -149,9 +149,15 @@ let enemy4 = new Player(3200, 1780, 64, 64, upImages);
 let enemy5 = new Player(2100, 1880, 64, 64, upImages);
 let enemy6 = new Player(1040, 600, 64, 64, upImages);
 let allEnemy = [];
-for (let i = 0; i < 7; i++) {
-    allEnemy.push(eval(`enemy${i}`));
+fill();
+function fill(){
+    for (let i = 0; i < 7; i++) {
+        allEnemy.push(eval(`enemy${i}`));
+    }
 }
+let killedEnemy=[];
+
+// let enemyHit=allEnemy.length();
 
 const testBoundary = new Boundary({
     position: {
@@ -161,6 +167,8 @@ const testBoundary = new Boundary({
 })
 let lastKey = 'w'
 let isCar = false;
+let isGameStarted = false;
+
 player.setAnimation(downImages.slice(0, 1));
 car.setAnimation(downCarImages.slice(0, 1));
 function updateObjectsPosition(objects, X, Y) {
@@ -170,41 +178,75 @@ function updateObjectsPosition(objects, X, Y) {
 
     });
 }
-image.onload = () => {
-    const background = new Sprite({
-        position: {
-            x: offset.x,
-            y: offset.y
-        },
-        image: image
-    })
+let scoreValue=0;
+function updateScore() {
+    
+  
+    scoreValue += 1;
+    const scoreElement = document.getElementById('score');
+    scoreElement.innerHTML = `Points: ${scoreValue}/7`;
+}
+function iscoll({ rect1, rect2 }) {
+    return (rect1.x + rect1.width - 20 >= rect2.position.x &&
+        rect1.x <= rect2.position.x + rect2.width - 20
+        && rect1.y + rect1.height - 8 >= rect2.position.y &&
+        rect1.y <= rect2.position.y + rect2.height - 50)
+}
+function isEnemycoll({ rect1, rect2 }) {
+    return (rect1.x + rect1.width - 20 >= rect2.x &&
+        rect1.x <= rect2.x + rect2.width - 20
+        && rect1.y + rect1.height - 8 >= rect2.y &&
+        rect1.y <= rect2.y + rect2.height - 50)
+}
+const background = new Sprite({
+    position: {
+        x: offset.x,
+        y: offset.y
+    },
+    image: image
+})
 
-    const foreground = new Sprite({
-        position: {
-            x: offset.x,
-            y: offset.y
-        },
-        image: foregroundImage
-    })
-    const aeroplane = new Sprite({
-        position: {
-            x: offset.x,
-            y: offset.y
-        },
-        image: aeroplaneImage
-    })
-    function iscoll({ rect1, rect2 }) {
-        return (rect1.x + rect1.width - 20 >= rect2.position.x &&
-            rect1.x <= rect2.position.x + rect2.width - 20
-            && rect1.y + rect1.height - 8 >= rect2.position.y &&
-            rect1.y <= rect2.position.y + rect2.height - 50)
+const foreground = new Sprite({
+    position: {
+        x: offset.x,
+        y: offset.y
+    },
+    image: foregroundImage
+})
+const aeroplane = new Sprite({
+    position: {
+        x: offset.x,
+        y: offset.y
+    },
+    image: aeroplaneImage
+})
+
+
+function checkPlayerEnemyCollisions() {
+    for (let i = 0; i < allEnemy.length; i++) {
+        const enemy = allEnemy[i];
+        if (isEnemycoll({ rect1: player, rect2: enemy })) {
+            updateScore(); 
+            killedEnemy.push(allEnemy[i])
+            allEnemy.splice(i, 1);
+        }
     }
+}
+
+image.onload = () => {
+    
     function animate() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         background.draw(context)
-        allEnemy.forEach(enemy => {
-            enemy.draw(context);
-        });
+        if(scoreValue==7){  
+            window.location.reload();
+        }
+        if (isGameStarted) {
+            allEnemy.forEach(enemy => {
+                enemy.draw(context);
+            });   
+        }
+        
         if (isCar) {
             upCounter = 0;
             leftCounter = 0;
@@ -227,7 +269,7 @@ image.onload = () => {
         airplane.update();
         airplane.draw(context);
         let moving = true;
-        const objectToUpdate = [background, airplane, ...Boundaries, foreground,]
+        const objectToUpdate = [background, airplane, ...Boundaries, foreground]
 
         if (keys.w.pressed && lastKey === 'w') {
             for (let i = 0; i < Boundaries.length; i++) {
@@ -245,6 +287,7 @@ image.onload = () => {
                     break;
                 }
             }
+            checkPlayerEnemyCollisions();
             if (isCar) {
                 car.setAnimation(upCarImages.slice(upCounter, upCarImages.length));
                 upCarCounter = (upCarCounter + 1) % upCarImages.length;
@@ -261,11 +304,18 @@ image.onload = () => {
                     allEnemy.forEach(enemy => {
                         enemy.y += 2 * speedMultiplier;
                     });
+                    killedEnemy.forEach(enemy => {
+                        enemy.y += 2 * speedMultiplier;
+                    });
+                    
                 }
                 else {
                     updateObjectsPosition(objectToUpdate, 0, 2)
                     allEnemy.forEach(enemy => {
-                        enemy.y += 2 * speedMultiplier;
+                        enemy.y += 2 ;
+                    });
+                    killedEnemy.forEach(enemy => {
+                        enemy.y += 2 ;
                     });
                 }
             }
@@ -285,6 +335,7 @@ image.onload = () => {
                     break;
                 }
             }
+             checkPlayerEnemyCollisions();
             if (isCar) {
                 car.setAnimation(leftCarImages.slice(leftCounter, leftCarImages.length));
                 leftCarCounter = (leftCarCounter + 1) % leftCarImages.length;
@@ -299,11 +350,17 @@ image.onload = () => {
                     allEnemy.forEach(enemy => {
                         enemy.x += 2 * speedMultiplier;
                     });
+                    killedEnemy.forEach(enemy => {
+                        enemy.x += 2 * speedMultiplier;
+                    });
                     updateObjectsPosition(objectToUpdate, 2 * speedMultiplier, 0)
                 }
                 else {
                     allEnemy.forEach(enemy => {
                         enemy.x += 2;
+                    });
+                    killedEnemy.forEach(enemy => {
+                        enemy.x += 2 ;
                     });
                     updateObjectsPosition(objectToUpdate, 2, 0)
                 }
@@ -324,6 +381,7 @@ image.onload = () => {
                     break;
                 }
             }
+             checkPlayerEnemyCollisions();
             if (isCar) {
                 car.setAnimation(downCarImages.slice(downCounter, downCarImages.length));
                 downCarCounter = (downCarCounter + 1) % downCarImages.length;
@@ -340,6 +398,9 @@ image.onload = () => {
                     allEnemy.forEach(enemy => {
                         enemy.y -= 2 * speedMultiplier;
                     });
+                    killedEnemy.forEach(enemy => {
+                        enemy.y -= 2 * speedMultiplier;
+                    });
                     updateObjectsPosition(objectToUpdate, 0, -2 * speedMultiplier)
 
 
@@ -348,6 +409,9 @@ image.onload = () => {
                     updateObjectsPosition(objectToUpdate, 0, -2)
                     allEnemy.forEach(enemy => {
                         enemy.y -= 2;
+                    });
+                    killedEnemy.forEach(enemy => {
+                        enemy.y -= 2 ;
                     });
 
                 }
@@ -368,6 +432,7 @@ image.onload = () => {
                     break;
                 }
             }
+             checkPlayerEnemyCollisions();
             if (isCar) {
                 car.setAnimation(rightCarImages.slice(rightCounter, rightCarImages.length));
                 rightCarCounter = (rightCarCounter + 1) % rightCarImages.length;
@@ -383,12 +448,18 @@ image.onload = () => {
                     allEnemy.forEach(enemy => {
                         enemy.x -= 2 * speedMultiplier;
                     });
+                    killedEnemy.forEach(enemy => {
+                        enemy.x -= 2 * speedMultiplier;
+                    });
                     updateObjectsPosition(objectToUpdate, -2 * speedMultiplier, 0)
                 }
                 else {
 
                     allEnemy.forEach(enemy => {
                         enemy.x -= 2;
+                    });
+                    killedEnemy.forEach(enemy => {
+                        enemy.x -= 2 ;
                     });
                     updateObjectsPosition(objectToUpdate, -2, 0)
                 }
@@ -417,6 +488,9 @@ const keys = {
     },
     r: {
         pressed: false
+    },
+    g:{
+        pressed:false
     }
 }
 window.addEventListener('keydown', (e) => {
@@ -454,6 +528,8 @@ window.addEventListener('keydown', (e) => {
         case 'r':
             isCar = !isCar;
             break;
+        case 'g':
+            isGameStarted=!isGameStarted;
     }
 })
 window.addEventListener('keyup', (e) => {
