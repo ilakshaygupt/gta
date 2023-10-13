@@ -4,7 +4,9 @@ import Airplane from "./airplane.js"
 import Boundary from "./boundary.js"
 let walkingSound = document.getElementById('walking-sound')
 let collisionsound = document.getElementById('collision-sound')
-let carSound = document.getElementById('car-sound')
+// let carSound = document.getElementById('car-sound')
+let coinSound = document.getElementById('mario-coin-sound')
+
 
 const canvas = document.querySelector('canvas')
 
@@ -13,7 +15,6 @@ const context = canvas.getContext('2d')
 
 const toggleDarkModeButton = document.getElementById('toggleDarkMode');
 const body = document.body;
-
 
 function toggleDarkMode() {
     body.classList.toggle('dark-mode');
@@ -100,6 +101,7 @@ let upCar = new Image();
 let downCar = new Image();
 let leftCar = new Image();
 let rightCar = new Image();
+let checkpoint = new Image();
 up.src = "../images/up/1.png";
 down.src = "../images/down/1.png";
 left.src = "../images/left/1.png";
@@ -108,6 +110,10 @@ upCar.src = "../car/upCar/1.png";
 downCar.src = "../car/downCar/1.png";
 leftCar.src = "../car/leftCar/1.png";
 rightCar.src = "../car/rightCar/1.png";
+checkpoint.src = "../assets/checkpoint.png";
+
+console.log("checkpoint image is loaded");
+
 const upImages = [];
 const downImages = [];
 const leftImages = [];
@@ -116,6 +122,7 @@ const upCarImages = [];
 const downCarImages = [];
 const leftCarImages = [];
 const rightCarImages = [];
+const checkpointImages =[];
 fillArray("up", 6, upImages);
 fillArray("down", 9, downImages);
 fillArray("left", 9, leftImages);
@@ -124,6 +131,8 @@ fillCarArray("upCar", 2, upCarImages);
 fillCarArray("downCar", 2, downCarImages);
 fillCarArray("leftCar", 2, leftCarImages);
 fillCarArray("rightCar", 2, rightCarImages);
+fillCheckpointArray(1,checkpointImages);
+
 
 function fillCarArray(folder, count, images) {
     for (let i = 1; i <= count; i++) {
@@ -139,15 +148,33 @@ function fillArray(folder, count, images) {
         images.push(image);
     }
 }
+function fillCheckpointArray(count, images) {
+    for (let i = 1; i <= count; i++) {
+        const image = new Image();
+        image.src = `../assets/checkpoint.png`;
+        images.push(image);
+    }
+    console.log("checkpoint array is filled");
+}
+
 let player = new Player(512, 270, 64, 64, upImages);
 let car = new Player(512, 270, 64, 64, upCarImages);
-let enemy0 = new Player(2000, 600, 64, 64, upImages);
-let enemy1 = new Player(1000, 1200, 64, 64, upImages);
-let enemy2 = new Player(2000, 1240, 64, 64, upImages);
-let enemy3 = new Player(3600, 1100, 64, 64, upImages);
-let enemy4 = new Player(3200, 1780, 64, 64, upImages);
-let enemy5 = new Player(2100, 1880, 64, 64, upImages);
-let enemy6 = new Player(1040, 600, 64, 64, upImages);
+let enemy0 = new Player(2000, 600, 64, 64, checkpointImages);
+let enemy1 = new Player(1000, 1200, 64, 64, checkpointImages);
+let enemy2 = new Player(2000, 1240, 64, 64, checkpointImages);
+let enemy3 = new Player(3600, 1100, 64, 64, checkpointImages);
+let enemy4 = new Player(3200, 1780, 64, 64, checkpointImages);
+let enemy5 = new Player(2100, 1880, 64, 64, checkpointImages);
+let enemy6 = new Player(1040, 600, 64, 64, checkpointImages);
+
+enemy0.scale = 1.0;
+enemy1.scale = 1.0;
+enemy2.scale = 1.0;
+enemy3.scale = 1.0;
+enemy4.scale = 1.0;
+enemy5.scale = 1.0;
+enemy6.scale = 1.0;
+
 let allEnemy = [];
 fill();
 function fill(){
@@ -169,6 +196,7 @@ let lastKey = 'w'
 let isCar = false;
 let isGameStarted = false;
 
+
 player.setAnimation(downImages.slice(0, 1));
 car.setAnimation(downCarImages.slice(0, 1));
 function updateObjectsPosition(objects, X, Y) {
@@ -178,14 +206,15 @@ function updateObjectsPosition(objects, X, Y) {
 
     });
 }
+
 let scoreValue=0;
+
 function updateScore() {
-    
-  
     scoreValue += 1;
     const scoreElement = document.getElementById('score');
     scoreElement.innerHTML = `Points: ${scoreValue}/7`;
 }
+
 function iscoll({ rect1, rect2 }) {
     return (rect1.x + rect1.width - 20 >= rect2.position.x &&
         rect1.x <= rect2.position.x + rect2.width - 20
@@ -227,6 +256,7 @@ function checkPlayerEnemyCollisions() {
         const enemy = allEnemy[i];
         if (isEnemycoll({ rect1: player, rect2: enemy })) {
             updateScore(); 
+            coinSound.play()
             killedEnemy.push(allEnemy[i])
             allEnemy.splice(i, 1);
         }
@@ -235,16 +265,36 @@ function checkPlayerEnemyCollisions() {
 
 image.onload = () => {
     
-    function animate() {
+    function animate()
+    {
         context.clearRect(0, 0, canvas.width, canvas.height);
         background.draw(context)
-        if(scoreValue==7){  
+        
+        if(scoreValue===7){  
             window.location.reload();
         }
+        
         if (isGameStarted) {
+            
             allEnemy.forEach(enemy => {
+                context.save();
+                context.scale(enemy.scale, enemy.scale); 
+                
+            if (enemy.scaleDirection === 'up') {
+                enemy.scale += 1.0; 
+                if (enemy.scale > 0.5) {
+                    enemy.scaleDirection = 'down';
+                }
+            } else {
+                enemy.scale -= 1.0; 
+                if (enemy.scale < 1.0) {
+                    enemy.scaleDirection = 'up';
+                }
+            }
                 enemy.draw(context);
-            });   
+                context.restore(); 
+            });
+              
         }
         
         if (isCar) {
@@ -500,6 +550,7 @@ window.addEventListener('keydown', (e) => {
             keys.w.pressed = true;
             lastKey = 'w'
             walkingSound.play()
+            
             break
         case 's':
             keys.s.pressed = true;
@@ -530,6 +581,7 @@ window.addEventListener('keydown', (e) => {
             break;
         case 'g':
             isGameStarted=!isGameStarted;
+            console.log("game started")
     }
 })
 window.addEventListener('keyup', (e) => {
