@@ -167,13 +167,6 @@ let enemy4 = new Player(3200, 1780, 64, 64, checkpointImages);
 let enemy5 = new Player(2100, 1880, 64, 64, checkpointImages);
 let enemy6 = new Player(1040, 600, 64, 64, checkpointImages);
 
-enemy0.scale = 1.0;
-enemy1.scale = 1.0;
-enemy2.scale = 1.0;
-enemy3.scale = 1.0;
-enemy4.scale = 1.0;
-enemy5.scale = 1.0;
-enemy6.scale = 1.0;
 
 let allEnemy = [];
 fill();
@@ -272,6 +265,7 @@ image.onload = () => {
         
         if(scoreValue===7){  
             window.location.reload();
+            return;
         }
         
         if (isGameStarted) {
