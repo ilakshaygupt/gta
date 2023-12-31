@@ -11,18 +11,18 @@
 ### C: Change the music track.
 ### V: Adjust movement speed.
 
-# Additional Fun:
-## Encounter a random hot air balloon as it gracefully floats across the map.
+## Additional Fun:
+### Encounter a random hot air balloon as it gracefully floats across the map.
 
-# How to Play:
-## Press 'G' to start your adventure.
-## Use WASD to explore the terrain.
-## Transform into a car with 'R' for faster travel.
-## Customize your experience with music controls ('M', 'C') and movement speed ('V').
-## Watch out for the charming hot air balloon!
-## Embark on this whimsical journey and enjoy the transformative fun! 🎮🚀
+## How to Play:
+### Press 'G' to start your adventure.
+### Use WASD to explore the terrain.
+### Transform into a car with 'R' for faster travel.
+### Customize your experience with music controls ('M', 'C') and movement speed ('V').
+### Watch out for the charming hot air balloon!
+### Embark on this whimsical journey and enjoy the transformative fun! 🎮🚀
 
-## Happy gaming! 🌈💻
+#### Happy gaming! 🌈💻
 
 
 
